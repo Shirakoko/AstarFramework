@@ -55,6 +55,46 @@ public class AStarSearcher<T_Map, T_Node> where T_Node: IAStarNode<T_Node>, ICom
         }
     }
 
+    /// <summary>
+    /// 从指定起点到所有节点的最优路径
+    /// </summary>
+    /// <param name="start">起点</param>
+    /// <param name="allPaths">用于存储所有节点的最优路径的字典</param>
+    public void FindAllPaths(T_Node start, Dictionary<T_Node, Stack<T_Node>> allPaths)
+    {
+        // 清空传入的字典
+        allPaths.Clear();
+    
+        // 初始化开放列表和关闭列表
+        closeList.Clear();
+        openList.Clear();
+    
+        // 将起点加入开放列表
+        openList.PushHeap(start);
+    
+        // 开始搜索
+        while (!openList.IsEmpty)
+        {
+            // 取出开放列表中最小代价的节点
+            var currentNode = openList.Top;
+            openList.PopHeap();
+    
+            // 将当前节点加入关闭列表
+            closeList.Add(currentNode);
+    
+            // 如果当前节点尚未在路径字典中，生成路径并保存
+            if (!allPaths.ContainsKey(currentNode))
+            {
+                var path = new Stack<T_Node>();
+                GenerateFinalPath(start, currentNode, path);
+                allPaths[currentNode] = path;
+            }
+    
+            // 更新探索集和边缘集
+            UpdateTwoLists(currentNode, null); // 这里传入 null 作为目标节点，因为不需要计算启发式值
+        }
+    }
+
     private void GenerateFinalPath(T_Node startNode, T_Node endNode, Stack<T_Node> pathStack)
     {
         pathStack.Push(endNode); // 因为回溯，所以用栈储存生成的路径
