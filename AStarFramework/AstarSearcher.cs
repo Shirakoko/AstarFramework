@@ -90,8 +90,8 @@ public class AStarSearcher<T_Map, T_Node> where T_Node: IAStarNode<T_Node>, ICom
                 allPaths[currentNode] = path;
             }
     
-            // 更新探索集和边缘集
-            UpdateTwoLists(currentNode, null); // 这里传入 null 作为目标节点，因为不需要计算启发式值
+            // 更新探索集和边缘集，传入 default(T_Node) 表示不计算启发式（Dijkstra）
+            UpdateTwoLists(currentNode, default);
         }
     }
 
@@ -139,7 +139,8 @@ public class AStarSearcher<T_Map, T_Node> where T_Node: IAStarNode<T_Node>, ICom
             if (isNotInOpenList || tpCost < sucNode.GCost)
             {
                 sucNode.GCost = tpCost; // 更新后继节点的总代价
-                sucNode.HCost = sucNode.GetDistance(endNode); // 计算后继节点的启发式估计值（到终点的估计代价）
+                // 计算后继节点的启发式估计值（到终点的估计代价），仅在 endNode 非 null 时计算启发式（A*），否则 HCost = 0（Dijkstra）
+                sucNode.HCost = !endNode.Equals(default) ? sucNode.GetDistance(endNode) : 0;
                 sucNode.Parent = curNode; // 设置后继节点的父节点为当前节点，方便回溯
 
                 // 如果后继节点不在探索集中，将其加入开放列表
